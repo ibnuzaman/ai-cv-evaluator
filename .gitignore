@@ -40,3 +40,6 @@ Thumbs.db
 
 # Docker Compose
 docker-compose.yaml
+
+# uploads
+/uploads

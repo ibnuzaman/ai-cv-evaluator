@@ -2,7 +2,9 @@ package handler
 
 import (
 	"aicvevaluator/internal/service"
+	"fmt"
 	"log"
+	"path/filepath"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
@@ -17,13 +19,34 @@ func NewEvaluationHandler(s service.EvaluationService) *EvaluationHandler {
 }
 
 func (h *EvaluationHandler) Evaluate(c *fiber.Ctx) error {
-	// TODO: Handle file uploads from the request
-	// For now, we use placeholders
-	cvPath := "path/to/cv.pdf"
-	reportPath := "path/to/report.pdf"
+	cvFile, err := c.FormFile("cv")
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "CV file is required"})
+	}
+
+	reportFile, err := c.FormFile("project_report")
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Project report file is required"})
+	}
+
+	cvFilename := fmt.Sprintf("%s-%s", uuid.New().String(), filepath.Base(cvFile.Filename))
+	reportFilename := fmt.Sprintf("%s-%s", uuid.New().String(), filepath.Base(reportFile.Filename))
+
+	cvPath := filepath.Join("uploads", cvFilename)
+	reportPath := filepath.Join("uploads", reportFilename)
+
+	if err := c.SaveFile(cvFile, cvPath); err != nil {
+		log.Printf("Error saving CV file: %v", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "failed to save CV file"})
+	}
+	if err := c.SaveFile(reportFile, reportPath); err != nil {
+		log.Printf("Error saving report file: %v", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "failed to save report file"})
+	}
 
 	eval, err := h.service.CreateEvaluation(c.Context(), cvPath, reportPath)
 	if err != nil {
+		log.Printf("Error creating evaluation task: %v", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": "could not create evaluation task",
 		})
