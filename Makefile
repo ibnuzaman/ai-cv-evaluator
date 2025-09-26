@@ -1,7 +1,7 @@
 ## Change these variables as necessary.
 include .env
 
-binary_name = backend
+binary_name = ./cmd/server/main.go
 db_user = $(DB_USER)
 db_password = $(DB_PASSWORD)
 db_host = $(DB_HOST)
@@ -55,7 +55,11 @@ tidy:
 ## build: build the application
 .PHONY: build
 build:
-	go build -o /tmp/${binary_name} .
+	go build -o server cmd/server/main.go
+
+.PHONY: build/run
+build/run: build
+	./server
 
 ## build/run: build and run the application
 .PHONY: build/run
@@ -65,7 +69,7 @@ build/run: build run
 .PHONY: run
 run:
 # 	go run main.go
-	export ENV=development && /tmp/${binary_name}
+	export ENV=development && go run ${binary_name}
 
 ## run: run the application with environment set to production
 .PHONY: run/production
@@ -73,18 +77,18 @@ run/production: build
 	export ENV=production && /tmp/${binary_name}
 
 ## run: run the application with environment set to staging
-.PHONY: run/staging
-run/staging: build
-	export ENV=staging && /tmp/${binary_name}
+# .PHONY: run/staging
+# run/staging: build
+# 	export ENV=staging && /tmp/${binary_name}
 
 ## dev: run the application with reloading on file changes
-.PHONY: dev
-dev:
-	export ENV=development && air -c .air.toml
+# .PHONY: dev
+# dev:
+# 	export ENV=development && air -c .air.toml
 
 ## dev/run: run the docs, lint, and build run
-.PHONY: dev/run
-dev/run: docs lint build run
+# .PHONY: dev/run
+# dev/run: docs lint build run
 
 ## dev/install: install air for reloading on file changes and golangci-lint for linting
 .PHONY: dev/install

@@ -60,25 +60,15 @@ GET /api/v1/result/:id
 ```sql
 -- Core evaluation tracking
 CREATE TABLE evaluations (
-    id SERIAL PRIMARY KEY,
-    job_id VARCHAR(255) UNIQUE NOT NULL,
-    cv_content TEXT,
-    project_content TEXT,
-    status VARCHAR(50) DEFAULT 'pending',
-    cv_match_rate DECIMAL(3,2),
-    cv_feedback TEXT,
-    project_score DECIMAL(4,2),
-    project_feedback TEXT,
-    overall_summary TEXT,
-    error_message TEXT,
-    created_at TIMESTAMP DEFAULT NOW(),
-    updated_at TIMESTAMP DEFAULT NOW()
+    id UUID PRIMARY KEY,
+    status VARCHAR(20) NOT NULL,
+    cv_path TEXT,
+    report_path TEXT,
+    result JSONB,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Indexing strategy
-CREATE INDEX idx_evaluations_job_id ON evaluations(job_id);
-CREATE INDEX idx_evaluations_status ON evaluations(status);
-CREATE INDEX idx_evaluations_created_at ON evaluations(created_at);
 ```
 
 **Job Queue & Long-Running Task Handling**
