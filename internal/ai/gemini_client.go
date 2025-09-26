@@ -27,7 +27,7 @@ func NewGeminiClient(ctx context.Context, apiKey string) (*GeminiClient, error) 
 	}
 
 	// Use the correct model name for Google AI Studio API
-	model := client.GenerativeModel("gemini-2.5-flash")
+	model := client.GenerativeModel("gemini-2.5-pro")
 	model.SetTemperature(0.1) // Lower temperature for more consistent results
 
 	// Set safety settings to be more permissive for business evaluation content
