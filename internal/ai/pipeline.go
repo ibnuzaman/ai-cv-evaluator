@@ -60,20 +60,32 @@ func (p *Pipeline) ProcessEvaluation(ctx context.Context, cvPath, reportPath str
 
 	log.Printf("Stage 1 analysis completed")
 
-	// Step 3: Query ChromaDB for relevant context
-	queryText := fmt.Sprintf("%s %s", cvContent, reportContent)
-	// Limit query text to avoid too long requests
-	if len(queryText) > 1000 {
-		queryText = queryText[:1000]
+	// Step 3: Query ChromaDB for relevant context (optional)
+	var chromaContext []string
+	if p.chromaClient != nil {
+		// Use a simple, relevant query for evaluation guidelines
+		queryText := "CV evaluation guidelines project assessment scoring rubric"
+
+		documents, err := p.chromaClient.QueryDocuments(ctx, queryText, 3)
+		if err != nil {
+			log.Printf("ChromaDB query failed, continuing without context: %v", err)
+		} else {
+			// Convert documents to string array
+			for _, doc := range documents {
+				chromaContext = append(chromaContext, doc.Content)
+			}
+			log.Printf("Retrieved %d context documents from ChromaDB", len(chromaContext))
+		}
 	}
 
-	chromaContext, err := p.chromaClient.QuerySimilar(ctx, queryText, 5)
-	if err != nil {
-		log.Printf("ChromaDB query failed, continuing without context: %v", err)
-		chromaContext = []string{} // Continue without context if ChromaDB fails
+	if len(chromaContext) == 0 {
+		log.Printf("No ChromaDB context available, using default evaluation guidelines")
+		// Provide default evaluation context when ChromaDB is not available
+		chromaContext = []string{
+			"CV Evaluation: Assess technical skills, experience level, education, and presentation quality. Rate CV match from 0.0-1.0.",
+			"Project Evaluation: Assess code quality, complexity, documentation, and problem-solving approach. Rate project from 0.0-10.0.",
+		}
 	}
-
-	log.Printf("Retrieved %d context documents from ChromaDB", len(chromaContext))
 
 	// Step 4: Stage 2 Evaluation with context
 	stage2Result, err := p.geminiClient.Stage2Evaluation(ctx, stage1Analysis, chromaContext, cvContent, reportContent)

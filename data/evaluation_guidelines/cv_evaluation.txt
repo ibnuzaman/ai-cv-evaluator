@@ -1,0 +1,42 @@
+# CV Evaluation Guidelines
+
+## Technical Skills Assessment
+- Look for key technical skills relevant to the position
+- Check for proficiency levels indicated
+- Verify evidence of skills through projects or work experience
+- Note any certifications or training related to technical skills
+
+## Experience Evaluation
+- Junior level: 0-2 years of relevant experience
+- Mid level: 2-5 years of relevant experience
+- Senior level: 5+ years of relevant experience
+- Consider quality of experience, not just duration
+- Look for progression of responsibilities
+
+## Education Assessment
+- Relevant degrees (Computer Science, Engineering, etc.)
+- Bootcamps or alternative education paths
+- Continuing education and professional development
+- Online courses and certifications
+
+## CV Format and Presentation
+- Clear and organized structure
+- No spelling or grammatical errors
+- Proper highlighting of achievements
+- Quantified results where possible
+- Appropriate level of detail
+
+## Red Flags
+- Unexplained gaps in employment
+- Frequent job changes without clear progression
+- Mismatch between claimed skills and experience
+- Vague descriptions of responsibilities
+- Lack of specific achievements
+
+## Score Calculation
+- CV Match Rate (0.0-1.0):
+  - 0.9-1.0: Excellent match - skills and experience align perfectly with requirements
+  - 0.7-0.8: Good match - most key requirements met
+  - 0.5-0.6: Fair match - some key requirements met
+  - 0.3-0.4: Poor match - few key requirements met
+  - 0.0-0.2: Very poor match - minimal alignment with requirements
