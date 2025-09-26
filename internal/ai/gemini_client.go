@@ -26,8 +26,8 @@ func NewGeminiClient(ctx context.Context, apiKey string) (*GeminiClient, error) 
 		return nil, fmt.Errorf("failed to create Gemini client: %w", err)
 	}
 
-	// Use gemini-1.5-pro which is the current available model
-	model := client.GenerativeModel("gemini-1.5-pro")
+	// Use the correct model name for Google AI Studio API
+	model := client.GenerativeModel("gemini-2.5-flash")
 	model.SetTemperature(0.1) // Lower temperature for more consistent results
 
 	// Set safety settings to be more permissive for business evaluation content
@@ -95,6 +95,10 @@ Provide a structured analysis in JSON format with the following structure:
 		if strings.Contains(err.Error(), "quota") || strings.Contains(err.Error(), "429") {
 			return "", fmt.Errorf("Gemini API quota exceeded. Please check your billing or wait for quota reset: %w", err)
 		}
+		// Check if it's a model not found error
+		if strings.Contains(err.Error(), "404") || strings.Contains(err.Error(), "not found") {
+			return "", fmt.Errorf("Gemini model not available. Try using 'gemini-pro' instead of 'gemini-1.5-pro': %w", err)
+		}
 		return "", fmt.Errorf("failed to generate Stage 1 analysis: %w", err)
 	}
 
@@ -154,6 +158,10 @@ Provide constructive, specific feedback that helps the candidate improve.
 		// Check if it's a quota exceeded error
 		if strings.Contains(err.Error(), "quota") || strings.Contains(err.Error(), "429") {
 			return "", fmt.Errorf("Gemini API quota exceeded. Please check your billing or wait for quota reset: %w", err)
+		}
+		// Check if it's a model not found error
+		if strings.Contains(err.Error(), "404") || strings.Contains(err.Error(), "not found") {
+			return "", fmt.Errorf("Gemini model not available. Try using 'gemini-pro' instead of 'gemini-1.5-pro': %w", err)
 		}
 		return "", fmt.Errorf("failed to generate Stage 2 evaluation: %w", err)
 	}
