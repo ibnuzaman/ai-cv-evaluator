@@ -1,6 +1,6 @@
 # AI CV Evaluator
 
-Aplikasi untuk mengevaluasi CV menggunakan AI dengan backend Go dan PostgreSQL.
+Aplikasi untuk mengevaluasi CV menggunakan AI dengan backend Go, PostgreSQL, ChromaDB, dan Google Gemini API.
 
 ## Setup Database
 
@@ -34,6 +34,9 @@ APP_PORT=8080
 
 # API Keys
 GEMINI_API_KEY=your_gemini_api_key
+
+# ChromaDB Configuration
+CHROMADB_URL=http://localhost:8000
 ```
 
 ### 2. Setup PostgreSQL Database
@@ -52,6 +55,23 @@ Aplikasi akan otomatis menjalankan migrasi database saat pertama kali dijalankan
 
 ## Menjalankan Aplikasi
 
+### 1. Start Services dengan Docker Compose
+
+```bash
+# Start PostgreSQL dan ChromaDB
+docker-compose up -d
+```
+
+### 2. Seed ChromaDB dengan Data Konteks (Opsional)
+
+```bash
+# Build dan jalankan seeder
+go build ./cmd/seed
+./seed
+```
+
+### 3. Jalankan Aplikasi
+
 ```bash
 # Build aplikasi
 go build ./cmd/server
@@ -65,6 +85,14 @@ Atau langsung jalankan dengan:
 ```bash
 go run ./cmd/server/main.go
 ```
+
+## Fitur AI Pipeline
+
+- **File Reading**: Mendukung parsing PDF dan file teks untuk ekstraksi konten
+- **ChromaDB Integration**: Retrieval-Augmented Generation (RAG) untuk konteks evaluasi
+- **Gemini AI Integration**: Multi-stage evaluation menggunakan Google Gemini API
+- **Asynchronous Processing**: Evaluasi berjalan di background dengan status tracking
+- **Structured Output**: Hasil evaluasi dalam format JSON terstruktur
 
 ## Fitur Konfigurasi Database
 

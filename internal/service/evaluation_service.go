@@ -6,6 +6,7 @@ import (
 	"log"
 	"time"
 
+	"aicvevaluator/internal/ai"
 	"aicvevaluator/internal/domain"
 	"aicvevaluator/internal/repository"
 
@@ -19,12 +20,16 @@ type EvaluationService interface {
 }
 
 type evaluationService struct {
-	repo repository.EvaluationRepository
+	repo       repository.EvaluationRepository
+	aiPipeline *ai.Pipeline
 }
 
 // NewEvaluationService creates a new instance of the service
-func NewEvaluationService(repo repository.EvaluationRepository) EvaluationService {
-	return &evaluationService{repo: repo}
+func NewEvaluationService(repo repository.EvaluationRepository, aiPipeline *ai.Pipeline) EvaluationService {
+	return &evaluationService{
+		repo:       repo,
+		aiPipeline: aiPipeline,
+	}
 }
 
 func (s *evaluationService) CreateEvaluation(ctx context.Context, cvPath, reportPath string) (*domain.Evaluation, error) {
@@ -52,41 +57,58 @@ func (s *evaluationService) GetEvaluationResult(ctx context.Context, id uuid.UUI
 	return s.repo.FindByID(ctx, id)
 }
 
-// TODO: Implement the processEvaluation method that will run in the background
+// processEvaluation runs the AI evaluation pipeline in the background
 func (s *evaluationService) processEvaluation(id uuid.UUID) {
-	log.Printf("Starting evaluation for job ID: %s", id)
+	log.Printf("Starting AI evaluation for job ID: %s", id)
 
-	// Simulasikan (misalnya, pemanggilan AI)
-	time.Sleep(15 * time.Second)
+	ctx := context.Background()
 
-	// Ambil data evaluasi dari DB
-	eval, err := s.repo.FindByID(context.Background(), id)
+	// Update status to processing
+	eval, err := s.repo.FindByID(ctx, id)
 	if err != nil {
 		log.Printf("Error finding evaluation %s for processing: %v", id, err)
-		// TODO: Update status ke 'failed'
 		return
 	}
 
-	// TODO: logic pipeline AI
-	// 1. Baca file CV dan Report dari path (eval.CVPath, eval.ReportPath)
-	// 2. Lakukan RAG (ambil konteks dari ChromaDB)
-	// 3. Lakukan LLM Chaining (panggil API Gemini)
-	// 4. Hasilkan JSON result
+	eval.Status = domain.StatusProcessing
+	err = s.repo.Update(ctx, eval)
+	if err != nil {
+		log.Printf("Error updating evaluation %s to processing: %v", id, err)
+		return
+	}
 
-	// dummy
-	dummyResultJSON := `{"cv_match_rate": 0.82, "cv_feedback": "Strong in backend.", "project_score": 7.5, "project_feedback": "Good.", "overall_summary": "Promising candidate."}`
+	// Run the AI pipeline
+	result, err := s.aiPipeline.ProcessEvaluation(ctx, eval.CVPath, eval.ReportPath)
+	if err != nil {
+		log.Printf("AI pipeline failed for evaluation %s: %v", id, err)
 
-	// Update status dan hasil di database
+		// Update status to failed
+		eval.Status = domain.StatusFailed
+		s.repo.Update(ctx, eval)
+		return
+	}
+
+	// Convert result to JSON
+	resultJSON, err := json.Marshal(result)
+	if err != nil {
+		log.Printf("Error marshaling result for evaluation %s: %v", id, err)
+
+		// Update status to failed
+		eval.Status = domain.StatusFailed
+		s.repo.Update(ctx, eval)
+		return
+	}
+
+	// Update evaluation with results
 	eval.Status = domain.StatusCompleted
-	raw := json.RawMessage(dummyResultJSON)
+	raw := json.RawMessage(resultJSON)
 	eval.Result = &raw
 
-	err = s.repo.Update(context.Background(), eval)
+	err = s.repo.Update(ctx, eval)
 	if err != nil {
 		log.Printf("Error updating evaluation %s to completed: %v", id, err)
-		// TODO: Update status ke 'failed'
 		return
 	}
 
-	log.Printf("Finished evaluation for job ID: %s", id)
+	log.Printf("Successfully completed AI evaluation for job ID: %s", id)
 }

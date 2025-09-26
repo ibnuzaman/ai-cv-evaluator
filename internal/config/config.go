@@ -29,6 +29,7 @@ type Config struct {
 	DB           *DBConfig
 	DatabaseURL  string
 	GeminiAPIKey string
+	ChromaDBURL  string
 }
 
 func LoadConfig() (*Config, error) {
@@ -96,6 +97,7 @@ func LoadConfig() (*Config, error) {
 		DB:           dbConfig,
 		DatabaseURL:  dbURL,
 		GeminiAPIKey: os.Getenv("GEMINI_API_KEY"),
+		ChromaDBURL:  getEnvOrDefault("CHROMADB_URL", "http://localhost:8000"),
 	}, nil
 }
 
