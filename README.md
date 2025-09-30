@@ -621,6 +621,34 @@ This project successfully demonstrates the integration of multiple AI services i
 
 ---
 
+## System Results & Screenshots
+
+### Evaluation Pipeline in Action
+
+The following screenshots demonstrate the complete AI evaluation pipeline:
+
+![AI Evaluation Process](result/processing.png)
+
+**Key Features Demonstrated:**
+- ✅ Asynchronous job processing with unique job IDs
+- ✅ Multi-stage AI analysis (Stage 1 → ChromaDB → Stage 2)
+- ✅ Structured JSON output with scoring and feedback
+- ✅ Comprehensive error handling and logging
+- ✅ REST API endpoints for submission and result retrieval
+
+### Sample Evaluation Result
+
+![Evaluation Result](result/get_result.png)
+
+The system provides structured evaluation results including:
+- **CV Match Rate**: Numerical score (0.0-1.0) indicating alignment with requirements
+- **CV Feedback**: Detailed textual analysis of strengths and areas for improvement
+- **Project Score**: Technical assessment score (0.0-10.0) based on complexity and implementation
+- **Project Feedback**: Comprehensive review of code quality, architecture, and documentation
+- **Overall Summary**: Holistic evaluation and recommendations
+
+---
+
 ## Quick Start
 
 ### Prerequisites
@@ -661,6 +689,28 @@ go build -o server cmd/server/main.go
 - `POST /api/v1/evaluate` - Submit CV for evaluation
 - `GET /api/v1/result/:id` - Get evaluation result
 
+### API Demo Screenshots
+
+#### 1. Submitting CV for Evaluation
+![POST Evaluate Endpoint](result/post_evaluate.png)
+*Screenshot showing the POST /api/v1/evaluate endpoint in action with CV and project report files*
+
+#### 2. Processing Status
+![Processing Status](result/processing.png)
+*The system shows processing status while AI evaluation is running in background*
+
+#### 3. Getting Evaluation Results
+![Get Result Endpoint](result/get_result.png)
+*Screenshot showing the GET /api/v1/result/:id endpoint returning structured evaluation results*
+
+#### 4. Application Logs - Processing
+![Processing Logs](result/log_processing.png)
+*Application logs showing the AI pipeline processing CV and project files*
+
+#### 5. Application Logs - Success
+![Success Logs](result/log_success.png)
+*Successful completion logs showing the entire evaluation pipeline working correctly*
+
 ### Architecture Overview
 
 ```
@@ -677,3 +727,4 @@ go build -o server cmd/server/main.go
 ```
 
 ---
+
